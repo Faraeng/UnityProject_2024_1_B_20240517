@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GameManager
   - Fruit
+  - EndLine
   layers:
   - Default
   - TransparentFX

@@ -10,18 +10,23 @@ public class CircleObject : MonoBehaviour
 
     public int index;          //과일 번호를 만든다.
 
+    public float EndTime = 0.0f;
+    public SpriteRenderer spriteRenderer;         //종료 전 시간 체크 변수
+
+    public GameManager gameMananger;      
+
     // Start is called before the first frame update
 
-    private void Awake()
+    private void Awake()                                 //시작 전 소스 단계서 셋팅
     {
         isUsed = false;                                  //사용 완료가 되지 않음
         rigidbody2D = GetComponent<Rigidbody2D>();      //강체를 가져온다.
         rigidbody2D.simulated = false;
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
     void Start()
     {
-        isUsed = false;
-        rigidbody2D = GetComponent<Rigidbody2D>();
+        gameMananger = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
@@ -75,6 +80,32 @@ public class CircleObject : MonoBehaviour
         rigidbody2D.simulated = true;     //물리 현상 시작
     }
 
+    public void OnTriggerStay2D(Collider2D collision)
+    {
+        if(collision.tag == "EndLine")                       //c\충돌 중인 물체가의 TAG 가 EndLine일 경우
+        {
+            EndTime += Time.deltaTime;
+
+            if(EndTime > 1)
+            {
+                spriteRenderer.color = new Color(0.9f, 0.2f, 0.2f);
+            }
+            if(EndTime > 3)
+            {
+                gameMananger.EndGame();
+            }
+        }
+    }
+
+    public void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "EndLine")                      //충돌 물체가 빠져 나갔을 때
+        {
+            EndTime = 0.0f;
+            spriteRenderer.color = Color.white;             //기존 색상으로 변경
+        }
+    }
+
     public void OnCollisionEnter2D(Collision2D collision)
     {
         if (index >= 7)         //준비된 과일이 최대 7개
@@ -88,7 +119,7 @@ public class CircleObject : MonoBehaviour
             {
                 if(gameObject.GetInstanceID() > collision.gameObject.GetInstanceID())     //유니티에서 지원하는 고유의 ID룰 받아와서 ID가 큰쪽에서 다음 과일 생성
                 {
-                    //gamemanger애서 생성 함수 호출
+                    //gamemanger에서 생성 함수 호출
                     GameObject Temp = GameObject.FindWithTag("GameManager");
                     if (Temp != null)
                     {
